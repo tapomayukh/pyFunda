@@ -1,0 +1,32 @@
+# Copied meta-data from svn #
+#############################
+.svn
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+*.pyc
+*~
+# files created by text editors #
+#################################
+*.swp
+
+# ROS specific files and folders #
+##################################
+build
+msg_gen
+srv_gen
+
+# specific to the hrl_haptic_manipulation_in_clutter git repository #
+#####################################################################
+hrl_software_simulation_darpa_m3/bin
+hrl_haptic_manipulation_in_clutter_msgs/src/
+hrl_haptic_manipulation_in_clutter_srvs/src/
+m3skin_ros/src/
+m3skin_viz/bin/
+hrl_gazebo_darci/sdf/model.sdf
