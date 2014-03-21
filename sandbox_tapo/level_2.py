@@ -13,7 +13,7 @@ import pickle
 import optparse
 import string
 from collections import Counter
-
+import os
 import unittest
 
 class Problem:
@@ -46,8 +46,10 @@ class Problem:
 if __name__ == '__main__':
 
     
-    #inp_string = raw_input("Enter a string to be converted:")
-    inp_string = open("ocr.txt").read()
+    filename = "ocr.txt"
+    sub_dir = "./data/"
+    f = open(os.path.join(sub_dir, filename))
+    inp_string = f.read()
     
     level_no = 2
         
