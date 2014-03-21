@@ -49,8 +49,8 @@ if __name__ == '__main__':
     level_no = 1
     letters_look_ahead = 2
     
-    level_1 = Problem(level_no, inp_string)
-    solution = level_1.gen_output(letters_look_ahead)
+    level = Problem(level_no, inp_string)
+    solution = level.gen_output(letters_look_ahead)
     
     print "The solution to Level ", level_no, " is: "
     print solution

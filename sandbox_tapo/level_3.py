@@ -34,10 +34,10 @@ class Problem:
     def gen_output(self):
         output = self.apply_rule()
         
-        #for k in sorted(output):
-            #print (k + ': ' + str(solution[k]))
+        for k in sorted(output):
+            print (k + ': ' + str(solution[k]))
             
-        output_str = "".join(ch for ch in self.input_str if output[ch] == 1)  
+        output_str = ""  
         return output_str
         
     
@@ -46,12 +46,12 @@ class Problem:
 if __name__ == '__main__':
 
     
-    filename = "ocr.txt"
+    filename = "equality.txt"
     sub_dir = "./data/"
     f = open(os.path.join(sub_dir, filename))
     inp_string = f.read()
     
-    level_no = 2
+    level_no = 3
         
     level = Problem(level_no, inp_string)
     solution = level.gen_output()        
