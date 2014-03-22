@@ -14,6 +14,7 @@ import optparse
 import string
 from collections import Counter
 import os
+import re
 import unittest
 
 class Problem:
@@ -21,24 +22,18 @@ class Problem:
         self.level_num = level_num
         self.input_str = input_str
          
-    def apply_rule(self):
+    def apply_rule(self, param):
         # Params
-        d = {}
+        ltr_fwd_back = param
 
         # Body
-        for letter in self.input_str:
-            d[letter] = self.input_str.count(letter)
-        
-        return d
+        pattern = r"\b[A-Z]{3}[a-z][A-Z]{3}\b"
+        d = re.match(pattern, self.input_str)
+        return d.group(0)
             
-    def gen_output(self):
-        output = self.apply_rule()
-        
-        for k in sorted(output):
-            print (k + ': ' + str(solution[k]))
-            
-        output_str = ""  
-        return output_str
+    def gen_output(self, param):
+        output = self.apply_rule(param)  
+        return output
         
     
 ######################################################################################################
@@ -52,9 +47,10 @@ if __name__ == '__main__':
     inp_string = f.read()
     
     level_no = 3
+    fwd_back = 3
         
     level = Problem(level_no, inp_string)
-    solution = level.gen_output()        
+    solution = level.gen_output(fwd_back)        
         
     print "The solution to Level ", level_no, " is:", solution
         
