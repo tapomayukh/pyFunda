@@ -25,9 +25,12 @@ class Problem:
     def apply_rule(self, param):
         # Params
         ltr_fwd_back = param
+	str_len = len(self.input_str)
 
         # Body
-        pattern = r"\b[A-Z]{3}[a-z][A-Z]{3}\b"
+	pattern = r'\b[a-z][A-Z]{3}[a-z][A-Z]{3}[a-z]\b'
+	for i in range(ltr_fwd_back+1,str_len-ltr_fwd_back-1):
+		str_temp = self.input_str[i-ltr_fwd_back-1:i+ltr_fwd_back+2] 
         d = re.match(pattern, self.input_str)
         return d.group(0)
             
