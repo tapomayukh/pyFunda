@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Level 1
+# Level 3
 
 import pylab as pyl
 import numpy as np
@@ -26,13 +26,16 @@ class Problem:
         # Params
         ltr_fwd_back = param
 	str_len = len(self.input_str)
+        ans = ''
 
         # Body
 	pattern = r'\b[a-z][A-Z]{3}[a-z][A-Z]{3}[a-z]\b'
 	for i in range(ltr_fwd_back+1,str_len-ltr_fwd_back-1):
-		str_temp = self.input_str[i-ltr_fwd_back-1:i+ltr_fwd_back+2] 
-        d = re.match(pattern, self.input_str)
-        return d.group(0)
+	    str_temp = self.input_str[i-ltr_fwd_back-1:i+ltr_fwd_back+2] 
+            d = re.match(pattern, str_temp)
+            if d is not None:
+                ans = ans + d.group(0)[4]
+        return ans
             
     def gen_output(self, param):
         output = self.apply_rule(param)  

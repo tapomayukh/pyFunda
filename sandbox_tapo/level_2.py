@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Level 1
+# Level 2
 
 import pylab as pyl
 import numpy as np
