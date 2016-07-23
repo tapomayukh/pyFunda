@@ -15,6 +15,8 @@ import sys
 import schedule
 import os, os.path
 
+import csv
+
 class Cnt_Lines:
 	def __init__(self, paths):
 		self.paths = paths
