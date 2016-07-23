@@ -60,16 +60,16 @@ if __name__ == '__main__':
 	delay_time = 1
 
 	cbrw = com.get_browser()
-	cbrw.go('http://www.wine-searcher.com/pro/')
+	cbrw.go('your website')
 
 	com.showforms()
-	com.fv("loginform", "login_id_F", "jaspinder.singh.2014@marshall.usc.edu")
-	com.fv("loginform", "password_F", "belliviere")
+	com.fv("loginform", "login_id_F", "your id")
+	com.fv("loginform", "password_F", "your passwd")
 	com.submit()
 	
 ### Access Excel Entries ####
 
-	wb = open_workbook('Winesearcher_newest.xls')
+	wb = open_workbook('filename.xls')
 	for sheet in wb.sheets():
 	   	if sheet.number == 0:
 			item_names = sheet.col_values(5, start_rowx=1)
@@ -89,7 +89,7 @@ if __name__ == '__main__':
 			item_names[i] = item_names[i][:-4]
 		item_names[i] = item_names[i][0:item_names[i].find("(")]+item_names[i][item_names[i].find(")")+1:]
 		item_names[i] = item_names[i].strip()
-		print 'Searching Wine Item Number : ', i+1, ' out of ', data_len, ' wine items in Excel Sheet'
+		print 'Searching Item Number : ', i+1, ' out of ', data_len, ' items in Excel Sheet'
 		print 'Item name : ', item_names[i], ' Vintage : ', str(int(vintages[i]))
 		min_p, max_p, avg_p = find_price(item_names[i], str(int(vintages[i])), bottle_volumes[i])
 		min_price_list.append(min_p)
@@ -98,7 +98,7 @@ if __name__ == '__main__':
 		if i > 45*delay_time:
 			time.sleep(600) # delays for 10 minutes
 			delay_time = delay_time + 1
-	cbrw.go('http://www.wine-searcher.com/prof/logout.lml')
+	cbrw.go('your logout id')
 
 	#print min_price_list, max_price_list, avg_price_list
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 		sh_modified.write(i+1, 17, min_price_list[i])
 		sh_modified.write(i+1, 18, max_price_list[i])
 		sh_modified.write(i+1, 19, avg_price_list[i])
-	wb_modified.save('/home/tapo/git/personal_repos/pyFunda/sandbox_tapo/parsers/Winesearcher_filled_newest.xls')
+	wb_modified.save('filename.xls')
 	
 	
 			

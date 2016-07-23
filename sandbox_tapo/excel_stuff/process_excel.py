@@ -16,7 +16,7 @@ from collections import OrderedDict
 
 if __name__ == '__main__':
 
-	wb = open_workbook('Sample for Tapo 2.xls')
+	wb = open_workbook('filename.xls')
 	for sheet in wb.sheets():
 		if sheet.number == 0:
 			item_names_ref = sheet.col_values(1, start_rowx=1)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
 	for i in range(len(item_names)):
 		sh_modified.write(i+1, 6, str(item_number_list[i]))
 		sh_modified.write(i+1, 7, str(original_item_name_list[i]))
-	wb_modified.save('/home/tapo/git/personal_repos/pyFunda/sandbox_tapo/excel_stuff/Sample_for_Tapo_2.xls')
+	wb_modified.save('filename.xls')
 	
 			
 		        
