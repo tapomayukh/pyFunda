@@ -13,16 +13,22 @@ import base64
 import email
 from apiclient import errors
 
+import nltk
+from nltk.corpus import stopwords
+
+import enchant
+
+import matplotlib
+import matplotlib.pyplot as pp
+
 try:
     import argparse
     flags = argparse.ArgumentParser(parents=[tools.argparser]).parse_args()
 except ImportError:
     flags = None
 
-# If modifying these scopes, delete your previously saved credentials
-# at ~/.credentials/gmail-python-quickstart.json
 SCOPES = 'https://www.googleapis.com/auth/gmail.readonly'
-CLIENT_SECRET_FILE = '/home/tapo/git/personal_repos/client_secret.json'
+CLIENT_SECRET_FILE = 'your json file path'
 APPLICATION_NAME = 'Gmail API Python Quickstart'
 
 def get_credentials():
@@ -48,7 +54,7 @@ def get_credentials():
         flow.user_agent = APPLICATION_NAME
         if flags:
             credentials = tools.run_flow(flow, store, flags)
-        else: # Needed only for compatibility with Python 2.6
+        else:
             credentials = tools.run(flow, store)
         print('Storing credentials to ' + credential_path)
     return credentials
@@ -69,50 +75,121 @@ def GetMessageBody(service, user_id, msg_id):
 	except errors.HttpError, error:
 		print ('An error occurred: %s' % error)
 
-def main():
-	"""Shows basic usage of the Gmail API.
-
-	Creates a Gmail API service object and outputs a list of label names
-	of the user's Gmail account.
-	"""
+def get_messages(user_id, label_name):
+	
 	credentials = get_credentials()
 	http = credentials.authorize(httplib2.Http())
 	service = discovery.build('gmail', 'v1', http=http)
 
-	results = service.users().labels().list(userId='me').execute()
+	results = service.users().labels().list(userId=user_id).execute()
 	labels = results.get('labels', [])
 
 	for label in labels:
-		if label['name'] == 'Georgia Tech/Official Stuff/Gatech Related/From Prof':
+		if label['name'] == label_name:
 			label_id = label['id']
 	
-	response = service.users().messages().list(userId='me',labelIds=label_id).execute()
+	response = service.users().messages().list(userId=user_id,labelIds=label_id).execute()
 	messages = []
 	if 'messages' in response:
 		messages.extend(response['messages'])
 
 	while 'nextPageToken' in response:
 		page_token = response['nextPageToken']
-		response = service.users().messages().list(userId='me',labelIds=label_id,pageToken=page_token).execute()
+		response = service.users().messages().list(userId=user_id,labelIds=label_id,pageToken=page_token).execute()
 		messages.extend(response['messages'])
+
+	return service, messages
+
+def post_process(text):
+	# Post-processing using nltk
+	tokens = nltk.wordpunct_tokenize(text)		
+	tokens_alphabets = [w for w in tokens if w.isalpha()]
+	return len(tokens_alphabets)
 	
-	fwd_list_prof_email = []
+
+def from_prof(service, user_id, messages):	
+	remove_list_prof_email = []
 	len_list_prof_email = []
 	for msg in messages:
-		message = service.users().messages().get(userId='me', id=msg['id']).execute()
+		message = service.users().messages().get(userId=user_id, id=msg['id']).execute()
 		headers = message['payload']['headers']
 		for header in headers:
-			if header['name'] == 'Subject' and header['value'][0:3] == 'Fwd':
-				fwd_list_prof_email.append(msg['id'])
+			if (header['name'] == 'Subject' and header['value'][0:3] == 'Fwd') or (header['name'] == 'From' and 'prof name' not in header['value']) or (header['name'] == 'To' and ',' in header['value']) or (header['name'] == 'To' and 'student name' not in header['value'] and 'Alt. student name' not in header['value']) or (header['name'] == 'Cc' and len(header['value']) > 0):
+				remove_list_prof_email.append(msg['id'])
 			
-	
 	for msg in messages:
-		if msg['id'] not in fwd_list_prof_email:
-			relevant_message = service.users().messages().get(userId='me', id=msg['id']).execute()
+		if msg['id'] not in remove_list_prof_email:
 			relevant_message_body = GetMessageBody(service,'me',msg['id'])
-			print (relevant_message_body)			
+			idx_list = [relevant_message_body.find('condition 1'), relevant_message_body.find('condition 2'), relevant_message_body.find('- ck'), relevant_message_body.find('>'), relevant_message_body.find('condition 3'), relevant_message_body.find('condition 4'), relevant_message_body.find('On')]
+			idx_max = max(idx_list)
+			if idx_max == -1:
+				pass
+			else:
+				idx_min = min(x for x in idx_list if x > -1)	
+				len_msg = post_process(relevant_message_body[:idx_min])
+				len_list_prof_email.append(len_msg)
+	return len_list_prof_email
+
+def to_prof(service, user_id, messages):
+	remove_list_my_email = []
+	len_list_my_email = []
+	for msg in messages:
+		message = service.users().messages().get(userId=user_id, id=msg['id']).execute()
+		headers = message['payload']['headers']
+		for header in headers:
+			if (header['name'] == 'Subject' and header['value'][0:3] == 'Fwd') or (header['name'] == 'From' and 'Student name' not in header['value'] and 'Alt student name' not in header['value']) or (header['name'] == 'To' and 'Prof name' not in header['value']) or (header['name'] == 'To' and ',' in header['value']) or (header['name'] == 'Cc' and len(header['value']) > 0):
+				remove_list_my_email.append(msg['id'])
+
+	for msg in messages:
+		if msg['id'] not in remove_list_my_email:
+			relevant_message_body = GetMessageBody(service,'me',msg['id'])
+			idx_list = [relevant_message_body.find('Condition 1'), relevant_message_body.find('Condition 2'), relevant_message_body.find('>'), relevant_message_body.find('Condition 3'), relevant_message_body.find('Condition 4')]
+			idx_max = max(idx_list)
+			if idx_max == -1:
+				pass
+			else:
+				idx_min = min(x for x in idx_list if x > -1)	
+				len_msg = post_process(relevant_message_body[:idx_min])
+				len_list_my_email.append(len_msg)
+	return len_list_my_email
+
+def make_autopct(values):
+    def my_autopct(pct):
+        total = sum(values)
+        val = int(round(pct*total/100.0))
+        return '{v:d} ({p:.2f}%)'.format(p=pct,v=val)
+    return my_autopct
+
+def plot_data(prof_data, my_data):
+	print (prof_data)
+	print (my_data)
+	matplotlib.rcParams['font.size'] = 16.0
+	pie_labels = 'From Advisor', 'To Advisor'
+	pie_nums = [prof_data, my_data]
+	pie_colors = ['gold', 'lightskyblue']
+	pie_explode = (0, 0.1)
+
+	pp.pie(pie_nums, explode=pie_explode, labels=pie_labels, colors=pie_colors, autopct=make_autopct(pie_nums), shadow=True, startangle=90)
+	pp.title('Average No. of Words per Email')
+	pp.axis('equal')
+				
 			
 if __name__ == '__main__':
-	main()
+	
+	prof_label = 'Emails from Prof label'
+	my_label = 'Emails to Prof label'
+	
+	service, prof_messages = get_messages('me',prof_label)
+	prof_emails = from_prof(service, 'me', prof_messages)
+	len_prof_emails = len(prof_emails)
+	avg_words_prof = (float(sum(prof_emails))/float(len_prof_emails))
+
+	service, my_messages = get_messages('me',my_label)
+	my_emails = to_prof(service, 'me', my_messages)
+	len_my_emails = len(my_emails)
+	avg_words_me = (float(sum(my_emails))/float(len_my_emails))
+
+	plot_data(avg_words_prof, avg_words_me)
+	pp.show()
 
 
