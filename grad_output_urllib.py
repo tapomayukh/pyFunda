@@ -64,8 +64,9 @@ def save_data_to_google_spreadsheet(filePath):
 
 
 def run_algorithm():
-	start_date = datetime.datetime.now()
-	start_day = np.str(start_date.day - 6)
+	today = datetime.datetime.now()
+	start_date = today + datetime.timedelta(days=-6)
+	start_day = np.str(start_date.day)
 	start_month = np.str(start_date.month)
 	start_year = np.str(start_date.year)
 
