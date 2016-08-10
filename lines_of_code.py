@@ -63,7 +63,7 @@ def save_data_to_google_spreadsheet(lines_data):
     if rows_prev <= 2:
         new_data = [str(lines_data[0])+'/'+str(lines_data[1])+'/'+str(lines_data[2]),str(0),str(lines_data[3])]
     else:
-        prev_lines = data_arr_prev[2][cols_prev-1] 
+        prev_lines = data_arr_prev[1][cols_prev-1] 
         new_data = [str(lines_data[0])+'/'+str(lines_data[1])+'/'+str(lines_data[2]),str(float(lines_data[3])-float(prev_lines)), str(lines_data[3])]
     wks.insert_row(new_data,2)
 	
