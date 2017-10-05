@@ -65,7 +65,8 @@ def save_data_to_google_spreadsheet(filePath):
 		    temp = 0.0
 				
 
-## Again pretty self-explanatory: Collects data in a 7-day format similar to the Ph.D comic strip which I am trying to emulate here.. (refer www.tapomayukh.com)
+## Again pretty self-explanatory: Collects data in a 7-day format similar to 
+## the Ph.D comic strip which I am trying to emulate here.. (refer www.tapomayukh.com)
 
 def run_algorithm():
     today = datetime.datetime.now()
