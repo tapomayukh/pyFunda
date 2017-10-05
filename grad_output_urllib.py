@@ -14,7 +14,7 @@ import numpy as np
 import csv
 
 apiKey = "Write your key here"
-fileDirectory = "your path"
+fileDirectory = "your path" # where to store the CSV file
 filePrefix = "ProductivityData"
 
 ## Self explanatory function : Opens rescuetime data stored in a csv file, stores
@@ -67,6 +67,9 @@ def save_data_to_google_spreadsheet(filePath):
 
 ## Again pretty self-explanatory: Collects data in a 7-day format similar to 
 ## the Ph.D comic strip which I am trying to emulate here.. (refer www.tapomayukh.com)
+
+## Collects data from rescuetime API and stores in a CSV file which 
+## 'save_to_google_spreadsheet' function uses to upload in cloud
 
 def run_algorithm():
     today = datetime.datetime.now()
