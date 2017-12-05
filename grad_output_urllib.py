@@ -25,44 +25,55 @@ def save_data_to_google_spreadsheet(filePath):
     credentials = ServiceAccountCredentials.from_json_keyfile_name('your json file', scope)
     gc = gspread.authorize(credentials)
     wks = gc.open("grad_output").sheet1
-
+    cell_list = wks.range('A1:B7')
+    final_data = []
+    new_row = []
     with open(filePath, 'rb') as csvfile:
 	datareader = csv.reader(csvfile)
 	i=1
-	j=1
+	num_rows=0
 	temp = 0.0
 	for row in datareader:
+	    num_rows=num_rows+1
             if row[0][0:4] != 'Date':
 		year = int(float(row[0][0:4]))
 		month = int(float(row[0][5:7]))
 		day = int(float(row[0][8:10]))
 		week_idx = datetime.datetime(year,month,day).weekday()
-		if row[-1] == '1':
-	            temp = temp + float(row[1])
-		    j=j+1
-		if row[-1] == '2':
+		if num_rows==2:
+		    prev_week_idx = week_idx
+		if prev_week_idx == 0:
+		    week_day = 'Monday'
+		elif prev_week_idx == 1:
+		    week_day = 'Tuesday'
+		elif prev_week_idx == 2:
+		    week_day = 'Wednesday'
+		elif prev_week_idx == 3:
+		    week_day = 'Thursday'
+		elif prev_week_idx == 4:
+		    week_day = 'Friday'
+		elif prev_week_idx == 5:
+		    week_day = 'Saturday'
+		elif prev_week_idx == 6:
+		    week_day = 'Sunday'
+		if row[-1] == '1' or '2':
 		    temp = temp + float(row[1])
-		    j=j+1
-		if j == 3:
-		    if week_idx == 0:
-			week_day = 'Monday'
-		    elif week_idx == 1:
-			week_day = 'Tuesday'
-		    elif week_idx == 2:
-			week_day = 'Wednesday'
-		    elif week_idx == 3:
-		        week_day = 'Thursday'
-		    elif week_idx == 4:
-			week_day = 'Friday'
-		    elif week_idx == 5:
-			week_day = 'Saturday'
-		    else:
-		        week_day = 'Sunday'
+		if week_idx != prev_week_idx:
 		    new_row = [week_day, np.str(temp/(14*3600.))]
-		    wks.insert_row(new_row,i)
+		    final_data.append(new_row)
 		    i=i+1
-		    j=1
 		    temp = 0.0
+		    prev_week_idx = week_idx
+		
+	new_row = [week_day, np.str(temp/(14*3600.))]
+	final_data.append(new_row)
+	for i in range(len(cell_list)):
+            print i
+	    if i%2 == 0:
+	        cell_list[i].value = final_data[i/2][0]
+	    else:
+	        cell_list[i].value = final_data[i/2][1]
+	wks.update_cells(cell_list)
 				
 
 ## Again pretty self-explanatory: Collects data in a 7-day format similar to 
