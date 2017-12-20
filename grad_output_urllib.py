@@ -6,6 +6,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 import time
 import datetime
+from datetime import date
+import calendar
 import sys
 import schedule
 import os, os.path
@@ -17,6 +19,16 @@ apiKey = "Write your key here"
 fileDirectory = "your path" # where to store the CSV file
 filePrefix = "ProductivityData"
 
+## Initializes the weekly output data
+def init_final_data():
+	final_data = []
+	today_date = date.today()
+	start_date = today_date - datetime.timedelta(6)
+	all_dates = [start_date + datetime.timedelta(x) for x in range(7)]
+	for i in range(len(all_dates)):
+		final_data.append([calendar.day_name[all_dates[i].weekday()], np.str(0.0)])
+	return final_data
+
 ## Self explanatory function : Opens rescuetime data stored in a csv file, stores
 ## in a google spreadsheet (which creates the graph), and website embeds it
 
@@ -26,13 +38,12 @@ def save_data_to_google_spreadsheet(filePath):
     gc = gspread.authorize(credentials)
     wks = gc.open("grad_output").sheet1
     cell_list = wks.range('A1:B7')
-    final_data = []
-    new_row = []
     with open(filePath, 'rb') as csvfile:
 	datareader = csv.reader(csvfile)
 	i=1
 	num_rows=0
 	temp = 0.0
+	final_data = init_final_data()
 	for row in datareader:
 	    num_rows=num_rows+1
             if row[0][0:4] != 'Date':
@@ -42,34 +53,21 @@ def save_data_to_google_spreadsheet(filePath):
 		week_idx = datetime.datetime(year,month,day).weekday()
 		if num_rows==2:
 		    prev_week_idx = week_idx
-		if prev_week_idx == 0:
-		    week_day = 'Monday'
-		elif prev_week_idx == 1:
-		    week_day = 'Tuesday'
-		elif prev_week_idx == 2:
-		    week_day = 'Wednesday'
-		elif prev_week_idx == 3:
-		    week_day = 'Thursday'
-		elif prev_week_idx == 4:
-		    week_day = 'Friday'
-		elif prev_week_idx == 5:
-		    week_day = 'Saturday'
-		elif prev_week_idx == 6:
-		    week_day = 'Sunday'
-		if row[-1] == '1' or '2':
-		    temp = temp + float(row[1])
+		week_day = calendar.day_name[prev_week_idx]
 		if week_idx != prev_week_idx:
-		    new_row = [week_day, np.str(temp/(14*3600.))]
-		    final_data.append(new_row)
+		    for day in final_data:
+			if day[0] == week_day:
+			    day[1] = np.str(temp/(14*3600.))
 		    i=i+1
 		    temp = 0.0
 		    prev_week_idx = week_idx
-		
-	new_row = [week_day, np.str(temp/(14*3600.))]
-	final_data.append(new_row)
+		if row[-1] == '1' or '2':
+		    temp = temp + float(row[1])
+	for day in final_data:
+	    if day[0] == week_day:
+		day[1] = np.str(temp/(14*3600.))
 	for i in range(len(cell_list)):
-            print i
-	    if i%2 == 0:
+            if i%2 == 0:
 	        cell_list[i].value = final_data[i/2][0]
 	    else:
 	        cell_list[i].value = final_data[i/2][1]
