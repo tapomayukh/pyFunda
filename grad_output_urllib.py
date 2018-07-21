@@ -33,7 +33,7 @@ def init_final_data():
 ## in a google spreadsheet (which creates the graph), and website embeds it
 
 def save_data_to_google_spreadsheet(filePath):
-    scope = ['https://spreadsheets.google.com/feeds']
+    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     credentials = ServiceAccountCredentials.from_json_keyfile_name('your json file', scope)
     gc = gspread.authorize(credentials)
     wks = gc.open("grad_output").sheet1
@@ -70,7 +70,7 @@ def save_data_to_google_spreadsheet(filePath):
             if i%2 == 0:
 	        cell_list[i].value = final_data[i/2][0]
 	    else:
-	        cell_list[i].value = final_data[i/2][1]
+	        cell_list[i].value = float(final_data[i/2][1])
 	wks.update_cells(cell_list)
 				
 
