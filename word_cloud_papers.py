@@ -6,12 +6,13 @@ from pdfminer.layout import LAParams
 from pdfminer.pdfpage import PDFPage
 from cStringIO import StringIO
 
-from wordcloud import WordCloud
+from wordcloud import WordCloud, ImageColorGenerator
 import matplotlib.pyplot as pp
-
+from PIL import Image
 import os
+from os import path
 import sys
-
+import numpy as np
 import nltk
 from nltk.corpus import stopwords
 
@@ -45,8 +46,12 @@ if __name__ == '__main__':
 
 	path_to_papers_before_phd = '/home/tapo/my_papers/before_phd/'
 	path_to_papers_during_phd = '/home/tapo/my_papers/during_phd/'
+        path_to_papers_after_phd = '/home/tapo/my_papers/after_phd/'
+	path_to_images = '/home/tapo/my_papers/images/'
 
-	for path_to_papers in [path_to_papers_before_phd, path_to_papers_during_phd]:
+	names_list = ['before','during','after']
+	idx = 0
+	for path_to_papers in [path_to_papers_before_phd, path_to_papers_during_phd, path_to_papers_after_phd]:
 		file_name = path_to_papers + 'papers.txt'
 
 		# Delete the text file if it exists
@@ -80,18 +85,28 @@ if __name__ == '__main__':
 		text = " ".join(final_words)
 		
 		# Generate a word cloud image
-		wordcloud = WordCloud().generate(text)
+		robot_mask = np.array(Image.open(path.join(path_to_images, "robot.png")))
+		# by taking relative word frequencies into account, lower max_font_size
+		wc = WordCloud(background_color="white", max_words=2000, mask=robot_mask, contour_width=1, contour_color='white', max_font_size=40, relative_scaling=.5).generate(text)
 
+                # store to file
+		wc.to_file(path.join(path_to_images, names_list[idx]+".png"))
+
+		# create coloring from image
+		image_colors = ImageColorGenerator(robot_mask)
+
+		# Generate a wordcloud image in the mask color
+		wc.recolor(color_func=image_colors)
+
+		# store to file
+		wc.to_file(path.join(path_to_images, names_list[idx]+"2.png"))
+                
 		# Display the generated image:
-		pp.imshow(wordcloud)
-		pp.axis("off")
+		#pp.imshow(wc, interpolation='bilinear')
+		#pp.axis("off")
+		#pp.show()
 
-		# take relative word frequencies into account, lower max_font_size
-		wordcloud = WordCloud(max_font_size=40, relative_scaling=.5).generate(text)
-		pp.figure()
-		pp.imshow(wordcloud)
-		pp.axis("off")
-		pp.show()
+		idx=idx+1
 
 	
 	
