@@ -44,10 +44,10 @@ def convert_pdf_to_txt(path):
 
 if __name__ == '__main__':
 
-	path_to_papers_before_phd = '/home/tapo/my_papers/before_phd/'
-	path_to_papers_during_phd = '/home/tapo/my_papers/during_phd/'
-        path_to_papers_after_phd = '/home/tapo/my_papers/after_phd/'
-	path_to_images = '/home/tapo/my_papers/images/'
+	path_to_papers_before_phd = '/home/ubuntu/my_papers/before_phd/'
+	path_to_papers_during_phd = '/home/ubuntu/my_papers/during_phd/'
+        path_to_papers_after_phd = '/home/ubuntu/my_papers/after_phd/'
+	path_to_images = '/home/ubuntu/my_papers/images/'
 
 	names_list = ['before','during','after']
 	idx = 0
